@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.telegram.telegrambots.ApiContextInitializer;
 
 import java.util.Arrays;
 
@@ -12,6 +13,7 @@ import java.util.Arrays;
 public class JackysdailychallengeApplication {
 
 	public static void main(String[] args) {
+		ApiContextInitializer.init();
 		SpringApplication.run(JackysdailychallengeApplication.class, args);
 	}
 
