@@ -29,24 +29,24 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         User fromUser = update.getMessage().getFrom();
-        String cmd = update.getMessage().getText();
+        String cmd = getCommand(update.getMessage().getText());
         System.out.println(cmd);
 
         SendMessage msg = new SendMessage();
         String text;
 
         switch (cmd) {
-            case "/start":
+            case "start":
                 text = "this bot is running";
                 break;
-            case "/list_challenges":
+            case "list_challenges":
                 Collections.sort(allChallenges);
                 List<String> tempAllChallenges = Lists.newArrayList();
                 AtomicInteger index = new AtomicInteger(1);
                 allChallenges.stream().forEach(challenge -> tempAllChallenges.add(String.format("%d. %s", index.getAndIncrement(), challenge)));
                 text = allChallenges.isEmpty() ? "There are no challenges yet T.T" : String.join("\n", tempAllChallenges);
                 break;
-            case "/draw_daily_challenge":
+            case "draw_daily_challenge":
                 List<String> shuffledChallenges = Lists.newArrayList(allChallenges);
                 Collections.shuffle(shuffledChallenges);
                 text = shuffledChallenges.get(0);
@@ -74,5 +74,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return "803922992:AAF3wRVgvo8veraS9PK-KGqg-sTz8vhoG1s";
+    }
+
+    private String getCommand(String cmd) {
+        return cmd.split("/")[1]
+                .split("@")[0];
     }
 }
