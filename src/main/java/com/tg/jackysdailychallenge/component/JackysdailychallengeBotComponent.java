@@ -46,11 +46,23 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             case "start":
                 text = "this bot is running";
                 break;
+            case "add_challenge":
+                text = "add later...";
+                break;
             case "list_challenges":
                 text = listChallenges();
                 break;
             case "draw_daily_challenge":
                 text = drawDailyChallenge();
+                break;
+            case "score":
+                text = "add later...";
+                break;
+            case "summary":
+                text = "add later...";
+                break;
+            case "reset":
+                text = "add later...";
                 break;
             default:
                 text = "this bot is running";
@@ -97,6 +109,6 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private String drawDailyChallenge() {
         List<Challenge> shuffledChallenges = Lists.newArrayList(challengeService.findAll());
         Collections.shuffle(shuffledChallenges);
-        return shuffledChallenges.get(0).getTitle();
+        return shuffledChallenges.isEmpty() ? "There are no challenges yet T.T" : shuffledChallenges.get(0).getTitle();
     }
 }
