@@ -1,4 +1,4 @@
-package com.tg.jackysdailychallenge;
+package com.tg.jackysdailychallenge.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
