@@ -1,5 +1,6 @@
 package com.tg.jackysdailychallenge.component;
 
+import com.google.common.collect.Lists;
 import com.tg.jackysdailychallenge.model.Challenge;
 import com.tg.jackysdailychallenge.service.ChallengeServicable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -47,11 +49,9 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             case "list_challenges":
                 text = listChallenges();
                 break;
-//            case "draw_daily_challenge":
-//                List<String> shuffledChallenges = Lists.newArrayList(allChallenges);
-//                Collections.shuffle(shuffledChallenges);
-//                text = shuffledChallenges.get(0);
-//                break;
+            case "draw_daily_challenge":
+                text = drawDailyChallenge();
+                break;
             default:
                 text = "this bot is running";
         }
@@ -92,5 +92,11 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             .collect(Collectors.toList());
 
         return allChallenges.isEmpty() ? "There are no challenges yet T.T" : String.join("\n", tempAllChallenges);
+    }
+
+    private String drawDailyChallenge() {
+        List<Challenge> shuffledChallenges = Lists.newArrayList(challengeService.findAll());
+        Collections.shuffle(shuffledChallenges);
+        return shuffledChallenges.get(0).getTitle();
     }
 }
