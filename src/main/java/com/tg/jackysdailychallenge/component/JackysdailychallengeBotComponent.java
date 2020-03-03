@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -36,43 +37,40 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         User fromUser = update.getMessage().getFrom();
         String cmd = getCommand(update.getMessage().getText());
-        System.out.println(cmd);
+        System.out.println(String.format("@User#%d %s: %s", fromUser.getId(), fromUser.getFirstName(), cmd));
 
-        SendMessage msg = new SendMessage();
-        String text;
+        SendMessage outMsg = new SendMessage();
+        setReplyMsgFrm(update.getMessage(), outMsg);
 
 
         switch (cmd) {
             case "start":
-                text = "this bot is running";
+                outMsg.setText("add later...");
                 break;
             case "add_challenge":
-                text = "add later...";
+                outMsg.setText("add later...");
                 break;
             case "list_challenges":
-                text = listChallenges();
+                listChallenges(outMsg);
                 break;
             case "draw_daily_challenge":
-                text = drawDailyChallenge();
+                drawDailyChallenge(outMsg);
                 break;
             case "score":
-                text = "add later...";
+                outMsg.setText("add later...");
                 break;
             case "summary":
-                text = "add later...";
+                outMsg.setText("add later...");
                 break;
             case "reset":
-                text = "add later...";
+                outMsg.setText("add later...");
                 break;
             default:
-                text = "this bot is running";
+                outMsg.setText("add later...");
         }
 
-        msg.setChatId(update.getMessage().getChatId());
-        msg.setText(text);
-        msg.setReplyToMessageId(update.getMessage().getMessageId());
         try {
-            execute(msg);
+            execute(outMsg);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -94,7 +92,12 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 .split("@")[0];
     }
 
-    private String listChallenges() {
+    private void setReplyMsgFrm(Message inMsg, SendMessage outMsg) {
+        outMsg.setChatId(inMsg.getChatId());
+        outMsg.setReplyToMessageId(inMsg.getMessageId());
+    }
+
+    private void listChallenges(SendMessage outMsg) {
         List<Challenge> allChallenges = challengeService.findAll();
         AtomicInteger index = new AtomicInteger(1);
 
@@ -103,12 +106,12 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             .map(title -> String.format("%d. %s", index.getAndIncrement(), title))
             .collect(Collectors.toList());
 
-        return allChallenges.isEmpty() ? "There are no challenges yet T.T" : String.join("\n", tempAllChallenges);
+        outMsg.setText(allChallenges.isEmpty() ? "There are no challenges yet T.T" : String.join("\n", tempAllChallenges));
     }
 
-    private String drawDailyChallenge() {
+    private void drawDailyChallenge(SendMessage outMsg) {
         List<Challenge> shuffledChallenges = Lists.newArrayList(challengeService.findAll());
         Collections.shuffle(shuffledChallenges);
-        return shuffledChallenges.isEmpty() ? "There are no challenges yet T.T" : shuffledChallenges.get(0).getTitle();
+        outMsg.setText(shuffledChallenges.isEmpty() ? "There are no challenges yet T.T" : shuffledChallenges.get(0).getTitle());
     }
 }
