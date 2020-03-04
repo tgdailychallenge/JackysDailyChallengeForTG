@@ -6,7 +6,7 @@ import com.tg.jackysdailychallenge.model.Challenger;
 import java.util.List;
 import java.util.Optional;
 
-public interface ChallengerServicable {
+public interface ChallengerService {
     List<Challenger> findAll();
     Optional<Challenger> findByUserId(int userId);
     Challenger insertChallenger(Challenger challenger);

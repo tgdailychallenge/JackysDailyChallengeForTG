@@ -4,7 +4,7 @@ import com.tg.jackysdailychallenge.model.Challenge;
 
 import java.util.List;
 
-public interface ChallengeServicable {
+public interface ChallengeService {
     List<Challenge> findAll();
     List<Challenge> findByTitle(String title);
     List<Challenge> findByScore(int score);

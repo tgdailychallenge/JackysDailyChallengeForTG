@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ChallengeServiceImpl implements ChallengeServicable {
+public class ChallengeServiceImpl implements ChallengeService {
     @Autowired
     private ChallengeRepository challengeRepository;
 

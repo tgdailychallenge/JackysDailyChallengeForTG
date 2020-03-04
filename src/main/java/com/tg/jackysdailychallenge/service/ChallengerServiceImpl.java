@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ChallengerServiceImpl implements ChallengerServicable {
+public class ChallengerServiceImpl implements ChallengerService {
     @Autowired
     ChallengerRepository challengerRepository;
 

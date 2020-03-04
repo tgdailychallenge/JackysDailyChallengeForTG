@@ -2,7 +2,7 @@ package com.tg.jackysdailychallenge.component;
 
 import com.google.common.collect.Lists;
 import com.tg.jackysdailychallenge.model.Challenge;
-import com.tg.jackysdailychallenge.service.ChallengeServicable;
+import com.tg.jackysdailychallenge.service.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     @Autowired
-    private ChallengeServicable challengeService;
+    private ChallengeService challengeService;
 
 //    private List<Challenge> allChallenges = challengeService.findAll();
 
