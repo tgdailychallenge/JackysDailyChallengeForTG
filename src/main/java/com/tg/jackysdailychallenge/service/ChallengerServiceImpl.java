@@ -4,11 +4,13 @@ import com.tg.jackysdailychallenge.model.Challenge;
 import com.tg.jackysdailychallenge.model.Challenger;
 import com.tg.jackysdailychallenge.repository.ChallengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class ChallengerServiceImpl implements ChallengerService {
     @Autowired
     ChallengerRepository challengerRepository;

@@ -1,5 +1,6 @@
 package com.tg.jackysdailychallenge.model;
 
+import com.google.common.collect.Lists;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
@@ -14,6 +15,16 @@ public class Challenger {
     private Challenge dailyChallenge;
     private Date challengeDate;
     private List<Challenge> challengeList;
+
+
+    public Challenger(int userId) {
+        setUserId(userId);
+        setScore(0);
+        setDailyChallenge(null);
+        setChallengeDate(null);
+        setChallengeList(Lists.newArrayList());
+    }
+
 
     public int getUserId() {
         return userId;
