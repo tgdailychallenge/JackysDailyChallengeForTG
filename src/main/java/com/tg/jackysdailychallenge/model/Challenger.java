@@ -4,20 +4,23 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.util.Date;
+import java.util.List;
 
 public class Challenger {
     @Id private ObjectId _id;
 
-    private String username;
+    private int userId;
     private int score;
-    private Challenge challenge;
+    private Challenge dailyChallenge;
+    private Date challengeDate;
+    private List<Challenge> challengeList;
 
-    public String getUsername() {
-        return username;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public int getScore() {
@@ -28,12 +31,12 @@ public class Challenger {
         this.score = score;
     }
 
-    public Challenge getChallenge() {
-        return challenge;
+    public Challenge getDailyChallenge() {
+        return dailyChallenge;
     }
 
-    public void setChallenge(Challenge challenge) {
-        this.challenge = challenge;
+    public void setDailyChallenge(Challenge dailyChallenge) {
+        this.dailyChallenge = dailyChallenge;
     }
 
     public Date getChallengeDate() {
@@ -44,5 +47,11 @@ public class Challenger {
         this.challengeDate = challengeDate;
     }
 
-    private Date challengeDate;
+    public List<Challenge> getChallengeList() {
+        return challengeList;
+    }
+
+    public void setChallengeList(List<Challenge> challengeList) {
+        this.challengeList = challengeList;
+    }
 }
