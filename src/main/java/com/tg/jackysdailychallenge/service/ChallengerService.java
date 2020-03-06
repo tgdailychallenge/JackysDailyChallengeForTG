@@ -19,6 +19,7 @@ public interface ChallengerService {
     void insertToChallengeListByUserId(int userId, Challenge challenge);
     void updateChallengeByUserIdAndChallengeTitle(int userId, String title, Challenge challenge);
     void removeFromChallengeListByUserIdAndChallengeTitle(int userId, String title);
+    Optional<Challenge> findDailyChallengeById(int userId);
     void updateDailyChallengeAndDateById(int userId, Challenge dailyChallenge);
     int findScoreById(int userId);
     void updateScoreById(int userId, int score);

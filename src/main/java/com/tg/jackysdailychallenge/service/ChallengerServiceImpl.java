@@ -102,4 +102,10 @@ public class ChallengerServiceImpl implements ChallengerService {
             challengerRepository.save(challenger);
         });
     }
+
+    @Override
+    public Optional<Challenge> findDailyChallengeById(int userId) {
+        return findByUserId(userId)
+            .map(Challenger::getDailyChallenge);
+    }
 }
