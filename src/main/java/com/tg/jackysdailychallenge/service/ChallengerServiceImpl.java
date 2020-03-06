@@ -80,11 +80,18 @@ public class ChallengerServiceImpl implements ChallengerService {
     }
 
     @Override
-    public void updateDailyChallengeAndDateByUserId(int userId, Challenge dailyChallenge) {
+    public void updateDailyChallengeAndDateById(int userId, Challenge dailyChallenge) {
         findByUserId(userId).ifPresent(challenger -> {
             challenger.setDailyChallenge(dailyChallenge);
             challenger.setChallengeDate(new Date());
             challengerRepository.save(challenger);
         });
+    }
+
+    @Override
+    public int findScoreById(int userId) {
+        return findByUserId(userId)
+            .map(Challenger::getScore)
+            .orElse(0);
     }
 }

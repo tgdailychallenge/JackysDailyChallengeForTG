@@ -1,10 +1,8 @@
 package com.tg.jackysdailychallenge.component;
 
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.tg.jackysdailychallenge.model.Challenge;
 import com.tg.jackysdailychallenge.model.Challenger;
-import com.tg.jackysdailychallenge.service.ChallengeService;
 import com.tg.jackysdailychallenge.service.ChallengerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,22 +25,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
-    @Autowired
-    private ChallengeService challengeService;
 
     @Autowired
     private ChallengerService challengerService;
 
-//    private List<Challenge> allChallenges = challengeService.findAll();
-
-//    private List<String> allChallenges = Lists.newArrayList(
-//            "Play guitar / Play ukulele",
-//            "30 min training",
-//            "Reading",
-//            "Programming / Vege day",
-//            "Stretching",
-//            "Drink 6 cups of water today"
-//    );
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -150,11 +136,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 setDefaultInlineKeyboard(outMsg);
                 break;
             case SCORE:
-                outMsg.setText("add later...");
-                setDefaultInlineKeyboard(outMsg);
-                break;
-            case SUMMARY:
-                outMsg.setText("add later...");
+                showScore(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(outMsg);
                 break;
             case RESET:
@@ -195,7 +177,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             Arrays.asList(
                 new InlineKeyboardButton()
                     .setText("Draw Daily Challenge")
-                    .setCallbackData("draw_daily_challenge")
+                    .setCallbackData("draw_daily_challenge"),
+                new InlineKeyboardButton()
+                    .setText("Show Score")
+                    .setCallbackData("score")
             ));
         outMsg.setReplyMarkup(
             new InlineKeyboardMarkup()
@@ -231,7 +216,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
         if (isReadyToDrawDailyChallenge(userId)) {
             Challenge dailyChallenge = shuffledChallenges.get(0);
-            challengerService.updateDailyChallengeAndDateByUserId(userId, dailyChallenge);
+            challengerService.updateDailyChallengeAndDateById(userId, dailyChallenge);
         } else {
             appendTextToMsg("You have already draw your daily challenge today! Please draw again tmr!", outMsg);
         }
@@ -280,7 +265,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private void showScore(int userId, SendMessage outMsg) {
-        return;
+        appendTextToMsg(String.format("You now have %d points.",
+            challengerService.findScoreById(userId)), outMsg);
     }
 
     private void appendTextToMsg(String text, SendMessage outMsg) {
