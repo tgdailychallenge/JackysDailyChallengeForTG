@@ -55,7 +55,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         SendMessage outMsg = new SendMessage()
             .setChatId(inMsg.getChatId())
             .setReplyToMessageId(inMsg.getMessageId())
-            .setText(String.format("@%s", Optional.ofNullable(fromUser.getUserName()).orElse(fromUser.getFirstName())));
+            .setText(String.format("@%s", Optional.ofNullable(fromUser.getUserName()).orElse(fromUser.getFirstName())))
+            .setParseMode("markdown");
 
         if (isValidUserCommand(inMsg.getText()))
             onUserCommand(inMsg, fromUser, outMsg);
@@ -107,7 +108,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
         SendMessage outMsg = new SendMessage()
             .setChatId(inQuery.getMessage().getChatId())
-            .setText(String.format("@%s", Optional.ofNullable(fromUser.getUserName()).orElse(fromUser.getFirstName())));
+            .setText(String.format("@%s", Optional.ofNullable(fromUser.getUserName()).orElse(fromUser.getFirstName())))
+            .setParseMode("markdown");
 
         if (isAddChallengeIsWeekendOnly(inQuery)) {
             outMsg.setReplyToMessageId(inQuery.getMessage().getMessageId());
@@ -249,14 +251,12 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private void listChallenges(int userId, SendMessage outMsg) {
         List<Challenge> allChallenges = challengerService.findChallengeListByUserId(userId).orElse(Lists.newArrayList());
         if (!allChallenges.isEmpty()) {
-            AtomicInteger index = new AtomicInteger(1);
-
+            outMsg.setParseMode("markdown");
             appendTextToMsg("Here are your existing challenge list:", outMsg);
             allChallenges.stream()
                 .forEach(challenge ->
                     appendTextToMsg(
-                        String.format("%d. %s %s",
-                            index.getAndIncrement(),
+                        String.format(" - %s %s",
                             challenge.getTitle(),
                             challenge.getIsWeekendOnly() ? "(Weekend only)" : ""
                         ), outMsg)
@@ -290,7 +290,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             return;
         }
         appendTextToMsg("Complete the following challenge today!", outMsg);
-        appendTextToMsg(String.format("Challenge: %s", challengerService.findDailyChallengeById(userId).get().getTitle()), outMsg);
+        appendTextToMsg(String.format("Challenge: *%s*", challengerService.findDailyChallengeById(userId).get().getTitle()), outMsg);
         appendTextToMsg(String.format("Score: %d", challengerService.findDailyChallengeById(userId).get().getScore()), outMsg);
         appendTextToMsg(String.format("Status: %s", isCompleteDailyChallenge(userId) ? "completed" : "in progress"), outMsg);
     }
@@ -377,7 +377,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private void showScore(int userId, SendMessage outMsg) {
-        appendTextToMsg(String.format("You now have %d points.",
+        outMsg.setParseMode("markdown");
+        appendTextToMsg(String.format("You now have *%d* points.",
             challengerService.findScoreById(userId)), outMsg);
     }
 
