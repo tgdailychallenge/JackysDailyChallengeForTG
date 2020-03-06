@@ -319,7 +319,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
     private void addChallengeAskForTitle(int userId, SendMessage outMsg) {
         listChallenges(userId, outMsg);
-        appendTextToMsg("Please send me your new challenge.", outMsg);
+        appendTextToMsg("Please reply this message and send me your new challenge.", outMsg);
 
         outMsg.setReplyMarkup(
             new ForceReplyKeyboard()
