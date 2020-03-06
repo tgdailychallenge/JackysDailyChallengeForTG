@@ -109,4 +109,19 @@ public class ChallengerServiceImpl implements ChallengerService {
         return findByUserId(userId)
             .map(Challenger::getDailyChallenge);
     }
+
+    @Override
+    public boolean findCompleteById(int userId) {
+        return findByUserId(userId)
+            .map(Challenger::isComplete)
+            .orElse(false);
+    }
+
+    @Override
+    public void updateCompleteById(int userId, boolean complete) {
+        findByUserId(userId).ifPresent(challenger -> {
+            challenger.setComplete(complete);
+            challengerRepository.save(challenger);
+        });
+    }
 }

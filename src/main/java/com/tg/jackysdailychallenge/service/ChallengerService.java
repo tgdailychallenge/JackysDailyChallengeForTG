@@ -23,4 +23,6 @@ public interface ChallengerService {
     void updateDailyChallengeAndDateById(int userId, Challenge dailyChallenge);
     int findScoreById(int userId);
     void updateScoreById(int userId, int score);
+    boolean findCompleteById(int userId);
+    void updateCompleteById(int userId, boolean complete);
 }

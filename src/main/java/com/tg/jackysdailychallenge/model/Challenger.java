@@ -15,6 +15,8 @@ public class Challenger {
     private Challenge dailyChallenge;
     private Date challengeDate;
     private List<Challenge> challengeList;
+    private boolean complete;
+
 
 
     public Challenger(int userId) {
@@ -23,6 +25,7 @@ public class Challenger {
         setDailyChallenge(null);
         setChallengeDate(null);
         setChallengeList(Lists.newArrayList());
+        setComplete(false);
     }
 
 
@@ -64,5 +67,13 @@ public class Challenger {
 
     public void setChallengeList(List<Challenge> challengeList) {
         this.challengeList = challengeList;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.complete = complete;
     }
 }

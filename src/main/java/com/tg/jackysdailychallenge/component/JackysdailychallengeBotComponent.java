@@ -156,12 +156,17 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 showDailyChallenge(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
+            case COMPLETE_DAILY_CHALLENGE:
+                completeDailyChallenge(fromUser.getId(), outMsg);
+                setDefaultInlineKeyboard(fromUser.getId(), outMsg);
+                break;
             case SCORE:
                 showScore(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
             case RESET:
                 resetScore(fromUser.getId(), outMsg);
+                resetComplete(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
         }
@@ -194,7 +199,17 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                         .setCallbackData("draw_daily_challenge") :
                     new InlineKeyboardButton()
                         .setText("Show Daily Challenge")
-                        .setCallbackData("show_daily_challenge")
+                        .setCallbackData("show_daily_challenge"),
+//                !isCompleteDailyChallenge(userId) ?
+//                    new InlineKeyboardButton()
+//                        .setText("Complete Daily Challenge")
+//                        .setCallbackData("complete_daily_challenge") :
+//                    new InlineKeyboardButton()
+//                        .setText("")
+//                        .setCallbackData("")
+                new InlineKeyboardButton()
+                    .setText("Complete Daily Challenge")
+                    .setCallbackData("complete_daily_challenge")
             ),
             Arrays.asList(
                 new InlineKeyboardButton()
@@ -252,6 +267,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         if (isReadyToDrawDailyChallenge(userId)) {
             Challenge dailyChallenge = shuffledChallenges.get(0);
             challengerService.updateDailyChallengeAndDateById(userId, dailyChallenge);
+            challengerService.updateCompleteById(userId, false);
         } else {
             appendTextToMsg("You have already draw your daily challenge today! Please draw again tmr!", outMsg);
         }
@@ -264,8 +280,28 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             appendTextToMsg("You have not drawn daily challenge yet. Draw now!", outMsg);
             return;
         }
-        appendTextToMsg(String.format("Complete the following challenge today to gain %d points:", challengerService.findDailyChallengeById(userId).get().getScore()), outMsg);
-        appendTextToMsg(challengerService.findDailyChallengeById(userId).get().getTitle(), outMsg);
+        appendTextToMsg("Complete the following challenge today!", outMsg);
+        appendTextToMsg(String.format("Challenge: %s", challengerService.findDailyChallengeById(userId).get().getTitle()), outMsg);
+        appendTextToMsg(String.format("Score: %d", challengerService.findDailyChallengeById(userId).get().getScore()), outMsg);
+        appendTextToMsg(String.format("Status: %s", isCompleteDailyChallenge(userId) ? "completed" : "in progress"), outMsg);
+    }
+
+    private void completeDailyChallenge(int userId, SendMessage outMsg) {
+        if (isReadyToDrawDailyChallenge(userId)) {
+            appendTextToMsg("You have not drawn daily challenge yet. Draw now!", outMsg);
+            return;
+        }
+        if (isCompleteDailyChallenge(userId)) {
+            appendTextToMsg("Good job! You have already gained points from today's daily challenge. Try again tmr!", outMsg);
+            return;
+        }
+        Challenger challenger = challengerService.findByUserId(userId).get();
+        int dailyChallengeScore =  challengerService.findDailyChallengeById(userId).get().getScore();
+        int newScore = challenger.getScore() + dailyChallengeScore;
+        challengerService.updateScoreById(userId, newScore);
+        challengerService.updateCompleteById(userId, true);
+        appendTextToMsg(String.format("Well done! You gained %d points!", dailyChallengeScore), outMsg);
+        showScore(userId, outMsg);
     }
 
     private void addChallengeAskForTitle(int userId, SendMessage outMsg) {
@@ -322,7 +358,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
         inlineKeyboard.add(Lists.newArrayList(
             new InlineKeyboardButton()
-                .setText("Back")
+                .setText("<Back>")
                 .setCallbackData("start")
         ));
 
@@ -349,6 +385,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private void resetScore(int userId, SendMessage outMsg) {
         challengerService.updateScoreById(userId, 0);
         showScore(userId, outMsg);
+    }
+
+    private void resetComplete(int userId, SendMessage outMsg) {
+        challengerService.updateCompleteById(userId, false);
     }
 
     private boolean isValidUserCommand(String text) {
@@ -383,5 +423,9 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         return !challengeDate.isEqual(todayDate);
+    }
+
+    private boolean isCompleteDailyChallenge(int userId) {
+        return challengerService.findCompleteById(userId) && !isReadyToDrawDailyChallenge(userId);
     }
 }
