@@ -81,7 +81,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private boolean isAddChallengeTitle(Message inMsg) {
-        return inMsg.getReplyToMessage() != null && "JackysDailyChallengeBot".equals(inMsg.getReplyToMessage().getFrom().getUserName()) && inMsg.getReplyToMessage().getText().contains("Please send me your new challenge.");
+        return inMsg.getReplyToMessage() != null && "JackysDailyChallengeBot".equals(inMsg.getReplyToMessage().getFrom().getUserName()) && inMsg.getReplyToMessage().getText().contains("Please reply this message and send me your new challenge.");
     }
 
     private boolean isAddChallengeIsWeekendOnly(CallbackQuery inQuery) {
