@@ -19,4 +19,5 @@ public interface ChallengerService {
     void insertToChallengeListByUserId(int userId, Challenge challenge);
     void updateChallengeByUserIdAndChallengeTitle(int userId, String title, Challenge challenge);
     void removeFromChallengeListByUserIdAndChallengeTitle(int userId, String title);
+    void updateDailyChallengeAndDateByUserId(int userId, Challenge dailyChallenge);
 }

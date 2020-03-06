@@ -6,6 +6,7 @@ import com.tg.jackysdailychallenge.repository.ChallengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,10 +72,19 @@ public class ChallengerServiceImpl implements ChallengerService {
 
     @Override
     public void removeFromChallengeListByUserIdAndChallengeTitle(int userId, String title) {
-        findByUserId(userId).ifPresent(challenger -> {
+        findByUserId(userId).ifPresent(challenger ->
             challenger.setChallengeList(
                     challenger.getChallengeList().stream()
-                            .filter(challenge1 -> !title.equals(challenge1.getTitle())).collect(Collectors.toList()));
+                            .filter(challenge1 -> !title.equals(challenge1.getTitle())).collect(Collectors.toList()))
+        );
+    }
+
+    @Override
+    public void updateDailyChallengeAndDateByUserId(int userId, Challenge dailyChallenge) {
+        findByUserId(userId).ifPresent(challenger -> {
+            challenger.setDailyChallenge(dailyChallenge);
+            challenger.setChallengeDate(new Date());
+            challengerRepository.save(challenger);
         });
     }
 }

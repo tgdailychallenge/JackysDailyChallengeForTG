@@ -19,6 +19,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -144,7 +146,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 setDefaultInlineKeyboard(outMsg);
                 break;
             case DRAW_DAILY_CHALLENGE:
-                drawDailyChallenge(outMsg);
+                drawDailyChallenge(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(outMsg);
                 break;
             case SCORE:
@@ -219,16 +221,24 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             appendTextToMsg("You have no challenges yet T.T", outMsg);
     }
 
-    private void drawDailyChallenge(SendMessage outMsg) {
-        List<Challenge> shuffledChallenges = Lists.newArrayList(challengeService.findAll());
+    private void drawDailyChallenge(int userId, SendMessage outMsg) {
+        List<Challenge> shuffledChallenges = challengerService.findChallengeListByUserId(userId).orElse(Lists.newArrayList());
         Collections.shuffle(shuffledChallenges);
         if (shuffledChallenges.isEmpty()) {
             appendTextToMsg("You have no challenges yet... T.T", outMsg);
-        } else {
-            Challenge dailyChallenge = shuffledChallenges.get(0);
-            appendTextToMsg(String.format("Complete the following challenge to gain %d points:", dailyChallenge.getScore()), outMsg);
-            appendTextToMsg(dailyChallenge.getTitle(), outMsg);
+            return;
         }
+
+        if (isReadyToDrawDailyChallenge(userId)) {
+            Challenge dailyChallenge = shuffledChallenges.get(0);
+            challengerService.updateDailyChallengeAndDateByUserId(userId, dailyChallenge);
+        } else {
+            appendTextToMsg("You have already draw your daily challenge today! Please draw again tmr!", outMsg);
+        }
+
+        Challenge dailyChallenge = challengerService.findByUserId(userId).get().getDailyChallenge();
+        appendTextToMsg(String.format("Complete the following challenge to gain %d points:", dailyChallenge.getScore()), outMsg);
+        appendTextToMsg(dailyChallenge.getTitle(), outMsg);
     }
 
     private void addChallengeAskForTitle(int userId, SendMessage outMsg) {
@@ -297,5 +307,17 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         return Arrays.stream(Command.values())
             .filter(command -> text.equals(command.cmd()))
             .collect(Collectors.toList());
+    }
+
+    private boolean isReadyToDrawDailyChallenge(int userId) {
+        if (challengerService.findByUserId(userId).get().getChallengeDate() == null)
+            return true;
+
+        LocalDate challengeDate = challengerService.findByUserId(userId).get().getChallengeDate()
+            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate todayDate = Calendar.getInstance().getTime()
+            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        return !challengeDate.isEqual(todayDate);
     }
 }
