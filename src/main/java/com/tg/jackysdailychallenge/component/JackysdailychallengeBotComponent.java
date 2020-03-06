@@ -20,7 +20,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,6 +80,11 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private boolean isAddChallengeTitle(Message inMsg) {
+        if (inMsg.getReplyToMessage() != null) {
+            System.out.println(">> [ReplyToMessage] " + inMsg.getReplyToMessage());
+            System.out.println(">>[ReplyToUser] " + inMsg.getReplyToMessage().getFrom().getUserName());
+            System.out.println(">> [ReplyToText] " + inMsg.getReplyToMessage().getText());
+        }
         return inMsg.getReplyToMessage() != null && "JackysDailyChallengeBot".equals(inMsg.getReplyToMessage().getFrom().getUserName()) && inMsg.getReplyToMessage().getText().contains("Please reply this message and send me your new challenge.");
     }
 
@@ -309,7 +313,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         int newScore = challenger.getScore() + dailyChallengeScore;
         challengerService.updateScoreById(userId, newScore);
         challengerService.updateCompleteById(userId, true);
-        appendTextToMsg(String.format("Well done! You gained %d points!", dailyChallengeScore), outMsg);
+        appendTextToMsg(String.format("Well done! You gained *%d* points! ", dailyChallengeScore), outMsg);
         showScore(userId, outMsg);
     }
 
