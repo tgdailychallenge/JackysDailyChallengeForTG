@@ -361,7 +361,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
         inlineKeyboard.add(Lists.newArrayList(
             new InlineKeyboardButton()
-                .setText("<Back>")
+                .setText("*Back*")
                 .setCallbackData("start")
         ));
 
@@ -403,8 +403,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         if (!text.contains("/"))
             return false;
 
-        return !getCommandByText(text.split("/")[1])
-            .isEmpty();
+        return !getCommandByText(
+            text.split("/")[1]
+                .split("@")[0]
+        ).isEmpty();
     }
 
     private Command stringToCommand(String text) {
