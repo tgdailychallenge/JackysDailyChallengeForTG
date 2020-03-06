@@ -60,7 +60,19 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         if (isValidUserCommand(inMsg.getText()))
             onUserCommand(inMsg, fromUser, outMsg);
         else if (isAddChallengeTitle(inMsg)) {
-            addChallengeAskForIsWeekendOnly(inMsg, fromUser, outMsg);
+            if (challengerService.findChallengeByUserIdAndChallengeTitle(fromUser.getId(), inMsg.getText()).isPresent()) {
+                System.out.println("Challenge already exist");
+                appendTextToMsg("This challenge already exist in your list!", outMsg);
+                start(fromUser.getId(), outMsg);
+                setDefaultInlineKeyboard(fromUser.getId(), outMsg);
+            } else
+                addChallengeAskForIsWeekendOnly(inMsg, fromUser, outMsg);
+
+            try {
+                execute(outMsg);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("None of my business");
         }
@@ -167,6 +179,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             case RESET:
                 resetScore(fromUser.getId(), outMsg);
                 resetComplete(fromUser.getId(), outMsg);
+                resetDailyChallenge(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
         }
@@ -191,26 +204,22 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private void setDefaultInlineKeyboard(int userId, SendMessage outMsg) {
-        List<List<InlineKeyboardButton>> inlineKeyboard = Arrays.asList(
-            Arrays.asList(
-                isReadyToDrawDailyChallenge(userId) ?
-                    new InlineKeyboardButton()
-                        .setText("Draw Daily Challenge")
-                        .setCallbackData("draw_daily_challenge") :
-                    new InlineKeyboardButton()
-                        .setText("Show Daily Challenge")
-                        .setCallbackData("show_daily_challenge"),
-//                !isCompleteDailyChallenge(userId) ?
-//                    new InlineKeyboardButton()
-//                        .setText("Complete Daily Challenge")
-//                        .setCallbackData("complete_daily_challenge") :
-//                    new InlineKeyboardButton()
-//                        .setText("")
-//                        .setCallbackData("")
+        List<InlineKeyboardButton> dailyChallengeRow = Lists.newArrayList(
+            isReadyToDrawDailyChallenge(userId) ?
                 new InlineKeyboardButton()
-                    .setText("Complete Daily Challenge")
-                    .setCallbackData("complete_daily_challenge")
-            ),
+                    .setText("Draw Daily Challenge")
+                    .setCallbackData("draw_daily_challenge") :
+                new InlineKeyboardButton()
+                    .setText("Show Daily Challenge")
+                    .setCallbackData("show_daily_challenge"));
+
+        if (!isCompleteDailyChallenge(userId) && !isReadyToDrawDailyChallenge(userId))
+            dailyChallengeRow.add(new InlineKeyboardButton()
+                .setText("Complete Daily Challenge")
+                .setCallbackData("complete_daily_challenge"));
+
+        List<List<InlineKeyboardButton>> inlineKeyboard = Arrays.asList(
+            dailyChallengeRow,
             Arrays.asList(
                 new InlineKeyboardButton()
                 .setText("List Challenges")
@@ -229,7 +238,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                     .setText("Show Score")
                     .setCallbackData("score"),
                 new InlineKeyboardButton()
-                    .setText("Reset score")
+                    .setText("Reset score & daily challenge")
                     .setCallbackData("reset")
             ));
         outMsg.setReplyMarkup(
@@ -307,10 +316,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private void addChallengeAskForTitle(int userId, SendMessage outMsg) {
         listChallenges(userId, outMsg);
         appendTextToMsg("Please send me your new challenge.", outMsg);
+
         outMsg.setReplyMarkup(
             new ForceReplyKeyboard()
-                .setSelective(true)
-        );
+                .setSelective(true));
     }
 
     private void addChallengeAskForIsWeekendOnly(Message inMsg, User fromUser, SendMessage outMsg) {
@@ -328,12 +337,6 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                     .setKeyboard(inlineKeyboard));
 
         appendTextToMsg(String.format("Is \"%s\" for weekend only?", inMsg.getText()), outMsg);
-
-        try {
-            execute(outMsg);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
     }
 
     private void addNewChallengeToChallenger(int userId, Challenge newChallenge, SendMessage outMsg) {
@@ -391,6 +394,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         challengerService.updateCompleteById(userId, false);
     }
 
+    private void resetDailyChallenge(int userId, SendMessage outMsg) {
+        challengerService.updateDailyChallengeById(userId, null);
+    }
+
     private boolean isValidUserCommand(String text) {
         if (!text.contains("/"))
             return false;
@@ -415,6 +422,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
     private boolean isReadyToDrawDailyChallenge(int userId) {
         if (challengerService.findByUserId(userId).get().getChallengeDate() == null)
+            return true;
+        if (!challengerService.findDailyChallengeById(userId).isPresent())
             return true;
 
         LocalDate challengeDate = challengerService.findByUserId(userId).get().getChallengeDate()
