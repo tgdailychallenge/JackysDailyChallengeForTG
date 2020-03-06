@@ -256,7 +256,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             allChallenges.stream()
                 .forEach(challenge ->
                     appendTextToMsg(
-                        String.format(" - %s %s",
+                        String.format("* - %s %s*",
                             challenge.getTitle(),
                             challenge.getIsWeekendOnly() ? "(Weekend only)" : ""
                         ), outMsg)
