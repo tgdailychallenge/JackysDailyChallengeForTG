@@ -12,6 +12,12 @@ public class Challenge {
     private int score;
     private boolean isWeekendOnly;
 
+    public Challenge(String title, boolean isWeekendOnly) {
+        setTitle(title);
+        setScore(100);
+        setWeekendOnly(isWeekendOnly);
+    }
+
     public String getTitle() {
         return title;
     }
@@ -28,7 +34,7 @@ public class Challenge {
         this.score = score;
     }
 
-    public boolean isWeekendOnly() {
+    public boolean getIsWeekendOnly() {
         return isWeekendOnly;
     }
 
