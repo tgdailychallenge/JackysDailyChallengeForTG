@@ -72,11 +72,12 @@ public class ChallengerServiceImpl implements ChallengerService {
 
     @Override
     public void removeFromChallengeListByUserIdAndChallengeTitle(int userId, String title) {
-        findByUserId(userId).ifPresent(challenger ->
+        findByUserId(userId).ifPresent(challenger -> {
             challenger.setChallengeList(
-                    challenger.getChallengeList().stream()
-                            .filter(challenge1 -> !title.equals(challenge1.getTitle())).collect(Collectors.toList()))
-        );
+                challenger.getChallengeList().stream()
+                    .filter(challenge1 -> !title.equals(challenge1.getTitle())).collect(Collectors.toList()));
+            updateChallenger(challenger);
+        });
     }
 
     @Override
