@@ -72,7 +72,6 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private boolean isAddChallengeIsWeekendOnly(CallbackQuery inQuery) {
-//        System.out.println(inQuery.getMessage().getReplyToMessage() != null);
         System.out.println(inQuery.getMessage().getText());
         return inQuery.getMessage().getReplyToMessage() != null && inQuery.getMessage().getText().contains("for weekend only?");
     }
@@ -140,7 +139,7 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 setDefaultInlineKeyboard(outMsg);
                 break;
             case RESET:
-                outMsg.setText("add later...");
+                resetScore(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(outMsg);
                 break;
         }
@@ -181,6 +180,11 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 new InlineKeyboardButton()
                     .setText("Show Score")
                     .setCallbackData("score")
+            ),
+            Arrays.asList(
+                new InlineKeyboardButton()
+                    .setText("Reset score")
+                    .setCallbackData("reset")
             ));
         outMsg.setReplyMarkup(
             new InlineKeyboardMarkup()
@@ -271,6 +275,11 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
     private void appendTextToMsg(String text, SendMessage outMsg) {
         outMsg.setText(String.format("%s\n%s", outMsg.getText(), text));
+    }
+
+    private void resetScore(int userId, SendMessage outMsg) {
+        challengerService.updateScoreById(userId, 0);
+        showScore(userId, outMsg);
     }
 
     private boolean isValidUserCommand(String text) {

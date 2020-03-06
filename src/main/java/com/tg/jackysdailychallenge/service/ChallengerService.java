@@ -21,4 +21,5 @@ public interface ChallengerService {
     void removeFromChallengeListByUserIdAndChallengeTitle(int userId, String title);
     void updateDailyChallengeAndDateById(int userId, Challenge dailyChallenge);
     int findScoreById(int userId);
+    void updateScoreById(int userId, int score);
 }

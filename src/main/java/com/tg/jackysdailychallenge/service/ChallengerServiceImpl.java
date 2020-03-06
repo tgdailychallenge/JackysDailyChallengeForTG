@@ -94,4 +94,12 @@ public class ChallengerServiceImpl implements ChallengerService {
             .map(Challenger::getScore)
             .orElse(0);
     }
+
+    @Override
+    public void updateScoreById(int userId, int score) {
+        findByUserId(userId).ifPresent(challenger -> {
+            challenger.setScore(score);
+            challengerRepository.save(challenger);
+        });
+    }
 }
