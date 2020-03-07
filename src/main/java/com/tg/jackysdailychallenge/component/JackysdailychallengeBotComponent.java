@@ -282,13 +282,13 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                         ), outMsg)
                 );
         } else
-            appendTextToMsg("You have no challenges yet T.T", outMsg);
+            appendTextToMsg(String.format("You have no challenges yet %s", Emoji.CRY.getCode()), outMsg);
     }
 
-            appendTextToMsg("You have no challenges yet... T.T", outMsg);
     private void drawDailyChallenge(int userId, SendMessage outMsg, List<Challenge> challengeList) {
         Collections.shuffle(challengeList);
         if (challengeList.isEmpty()) {
+            appendTextToMsg(String.format("You have no challenges yet %s", Emoji.CRY.getCode()), outMsg);
             return;
         }
 
@@ -320,19 +320,19 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             appendTextToMsg("You have not drawn daily challenge yet. Draw now!", outMsg);
             return;
         }
-        appendTextToMsg("Complete the following challenge today!", outMsg);
+        appendTextToMsg(String.format("Complete the following challenge today! %s", Emoji.ADD_OIL.getCode()), outMsg);
         appendTextToMsg(String.format("Challenge: *%s*", challengerService.findDailyChallengeById(userId).get().getTitle()), outMsg);
         appendTextToMsg(String.format("Score: %d", challengerService.findDailyChallengeById(userId).get().getScore()), outMsg);
-        appendTextToMsg(String.format("Status: %s", isCompleteDailyChallenge(userId) ? "completed" : "in progress"), outMsg);
+        appendTextToMsg(String.format("Status: %s", isCompleteDailyChallenge(userId) ? String.format("completed %s", Emoji.COMPLETE.getCode()) : "in progress..."), outMsg);
     }
 
     private void completeDailyChallenge(int userId, SendMessage outMsg) {
         if (isReadyToDrawDailyChallenge(userId)) {
-            appendTextToMsg("You have not drawn daily challenge yet. Draw now!", outMsg);
+            appendTextToMsg(String.format("You have not drawn daily challenge yet. Draw now! %s", Emoji.HAPPY.getCode()), outMsg);
             return;
         }
         if (isCompleteDailyChallenge(userId)) {
-            appendTextToMsg("Good job! You have already gained points from today's daily challenge. Try again tmr!", outMsg);
+            appendTextToMsg(String.format("Good job! %s You have already gained points from today's daily challenge. Try again tmr!", Emoji.THUMBS_UP.getCode()), outMsg);
             return;
         }
         Challenger challenger = challengerService.findByUserId(userId).get();
@@ -340,13 +340,13 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         int newScore = challenger.getScore() + dailyChallengeScore;
         challengerService.updateScoreById(userId, newScore);
         challengerService.updateCompleteById(userId, true);
-        appendTextToMsg(String.format("Well done! You gained *%d* points! ", dailyChallengeScore), outMsg);
+        appendTextToMsg(String.format("Well done! %s You gained *%d* points! %s", Emoji.THUMBS_UP.getCode(), dailyChallengeScore, Emoji.CLAP.getCode()), outMsg);
         showScore(userId, outMsg);
     }
 
     private void addChallengeAskForTitle(int userId, SendMessage outMsg) {
         listChallenges(userId, outMsg);
-        appendTextToMsg("Please reply this message and send me your new challenge.", outMsg);
+        appendTextToMsg(String.format("Please reply this message and send me your new challenge. %s", Emoji.WINKY.getCode()), outMsg);
 
         outMsg.setReplyMarkup(
             new ForceReplyKeyboard()
