@@ -15,6 +15,7 @@ public interface ChallengerService {
     void removeChallengerByUserId(int userId);
 
     Optional<List<Challenge>> findChallengeListByUserId(int userId);
+    List<Challenge> findAllChallengeList();
     Optional<Challenge> findChallengeByUserIdAndChallengeTitle(int userId, String title);
     void insertToChallengeListByUserId(int userId, Challenge challenge);
     void updateChallengeByUserIdAndChallengeTitle(int userId, String title, Challenge challenge);
@@ -26,4 +27,5 @@ public interface ChallengerService {
     void updateScoreById(int userId, int score);
     boolean findCompleteById(int userId);
     void updateCompleteById(int userId, boolean complete);
+
 }

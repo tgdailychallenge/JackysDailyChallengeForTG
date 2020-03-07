@@ -6,6 +6,7 @@ import com.tg.jackysdailychallenge.repository.ChallengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,15 @@ public class ChallengerServiceImpl implements ChallengerService {
     @Override
     public Optional<Challenge> findChallengeByUserIdAndChallengeTitle(int userId, String title) {
         return findChallengeListByUserId(userId).get().stream().filter(challenge -> title.equals(challenge.getTitle())).findFirst();
+    }
+
+    @Override
+    public List<Challenge> findAllChallengeList() {
+        return challengerRepository.findAll().stream()
+            .map(Challenger::getChallengeList)
+            .flatMap(Collection::stream)
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     @Override

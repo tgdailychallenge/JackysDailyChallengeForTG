@@ -17,7 +17,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -171,7 +170,11 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
             case DRAW_DAILY_CHALLENGE:
-                drawDailyChallenge(fromUser.getId(), outMsg);
+                drawDailyChallengeFromChallengerChallengeList(fromUser.getId(), outMsg);
+                setDefaultInlineKeyboard(fromUser.getId(), outMsg);
+                break;
+            case DRAW_RANDOM_CHALLENGE_FROM_ALL:
+                drawDailyChallengeFromAllExistingChallenges(fromUser.getId(), outMsg);
                 setDefaultInlineKeyboard(fromUser.getId(), outMsg);
                 break;
             case SHOW_DAILY_CHALLENGE:
@@ -214,14 +217,23 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private void setDefaultInlineKeyboard(int userId, SendMessage outMsg) {
-        List<InlineKeyboardButton> dailyChallengeRow = Lists.newArrayList(
-            isReadyToDrawDailyChallenge(userId) ?
+        List<InlineKeyboardButton> dailyChallengeRow;
+
+        if (isReadyToDrawDailyChallenge(userId))
+            dailyChallengeRow = Lists.newArrayList(
                 new InlineKeyboardButton()
-                    .setText("Draw Daily Challenge")
-                    .setCallbackData("draw_daily_challenge") :
+                .setText("Draw Daily Challenge")
+                .setCallbackData(Command.DRAW_DAILY_CHALLENGE.cmd()),
                 new InlineKeyboardButton()
-                    .setText("Show Daily Challenge")
-                    .setCallbackData("show_daily_challenge"));
+                    .setText("Draw Random")
+                    .setCallbackData(Command.DRAW_RANDOM_CHALLENGE_FROM_ALL.cmd())
+            );
+        else
+            dailyChallengeRow = Lists.newArrayList(
+                new InlineKeyboardButton()
+                .setText("Show Daily Challenge")
+                .setCallbackData(Command.SHOW_DAILY_CHALLENGE.cmd())
+            );
 
         if (!isCompleteDailyChallenge(userId) && !isReadyToDrawDailyChallenge(userId))
             dailyChallengeRow.add(new InlineKeyboardButton()
@@ -273,19 +285,15 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
             appendTextToMsg("You have no challenges yet T.T", outMsg);
     }
 
-    private void drawDailyChallenge(int userId, SendMessage outMsg) {
-        List<Challenge> shuffledChallenges = challengerService.findChallengeListByUserId(userId)
-            .orElse(Lists.newArrayList())
-            .stream().filter(challenge -> !challenge.getIsWeekendOnly() || isWeekend())
-            .collect(Collectors.toList());
-        Collections.shuffle(shuffledChallenges);
-        if (shuffledChallenges.isEmpty()) {
             appendTextToMsg("You have no challenges yet... T.T", outMsg);
+    private void drawDailyChallenge(int userId, SendMessage outMsg, List<Challenge> challengeList) {
+        Collections.shuffle(challengeList);
+        if (challengeList.isEmpty()) {
             return;
         }
 
         if (isReadyToDrawDailyChallenge(userId)) {
-            Challenge dailyChallenge = shuffledChallenges.get(0);
+            Challenge dailyChallenge = challengeList.get(0);
             challengerService.updateDailyChallengeAndDateById(userId, dailyChallenge);
             challengerService.updateCompleteById(userId, false);
         } else {
@@ -293,6 +301,18 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         }
 
         showDailyChallenge(userId, outMsg);
+    }
+
+    private void drawDailyChallengeFromChallengerChallengeList(int userId, SendMessage outMsg) {
+        drawDailyChallenge(userId, outMsg,
+            challengerService.findChallengeListByUserId(userId)
+                .orElse(Lists.newArrayList())
+                .stream().filter(challenge -> !challenge.getIsWeekendOnly() || isWeekend())
+                .collect(Collectors.toList()));
+    }
+
+    private void drawDailyChallengeFromAllExistingChallenges(int userId, SendMessage outMsg) {
+        drawDailyChallenge(userId, outMsg, challengerService.findAllChallengeList());
     }
 
     private void showDailyChallenge(int userId, SendMessage outMsg) {

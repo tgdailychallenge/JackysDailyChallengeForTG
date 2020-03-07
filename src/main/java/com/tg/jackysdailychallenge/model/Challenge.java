@@ -41,4 +41,12 @@ public class Challenge {
     public void setWeekendOnly(boolean weekendOnly) {
         isWeekendOnly = weekendOnly;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Challenge challenge = (Challenge) obj;
+        return title.equals(challenge.getTitle()) && score == challenge.getScore() && isWeekendOnly == challenge.getIsWeekendOnly();
+    }
 }
