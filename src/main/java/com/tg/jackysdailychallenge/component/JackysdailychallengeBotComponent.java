@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -25,6 +26,8 @@ import java.util.stream.Collectors;
 @Component
 public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private final String timeZone = "Asia/Hong_Kong";
+    private final LocalDate todayDate = Calendar.getInstance().getTime()
+        .toInstant().atZone(ZoneId.of(timeZone)).toLocalDate();
 
     @Autowired
     private ChallengerService challengerService;
@@ -271,7 +274,10 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     }
 
     private void drawDailyChallenge(int userId, SendMessage outMsg) {
-        List<Challenge> shuffledChallenges = challengerService.findChallengeListByUserId(userId).orElse(Lists.newArrayList());
+        List<Challenge> shuffledChallenges = challengerService.findChallengeListByUserId(userId)
+            .orElse(Lists.newArrayList())
+            .stream().filter(challenge -> !challenge.getIsWeekendOnly() || isWeekend())
+            .collect(Collectors.toList());
         Collections.shuffle(shuffledChallenges);
         if (shuffledChallenges.isEmpty()) {
             appendTextToMsg("You have no challenges yet... T.T", outMsg);
@@ -436,8 +442,6 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
         LocalDate challengeDate = challengerService.findByUserId(userId).get().getChallengeDate()
             .toInstant().atZone(ZoneId.of(timeZone)).toLocalDate();
-        LocalDate todayDate = Calendar.getInstance().getTime()
-            .toInstant().atZone(ZoneId.of(timeZone)).toLocalDate();
         System.out.println(String.format("Challenge date: %s", challengeDate));
         System.out.println(String.format("Today date: %s", todayDate));
 
@@ -446,5 +450,17 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
     private boolean isCompleteDailyChallenge(int userId) {
         return challengerService.findCompleteById(userId) && !isReadyToDrawDailyChallenge(userId);
+    }
+
+    private boolean isWeekend() {
+        int todayDayOfWeek = todayDate.getDayOfWeek().getValue();
+        System.out.println(String.format("Today DayOfWeek: %d", todayDayOfWeek));
+
+        boolean isWeekend = Lists.newArrayList(6, 7)
+            .contains(todayDayOfWeek);
+        System.out.println(String.format("Is weekend? %b", isWeekend));
+
+        return isWeekend;
+
     }
 }
