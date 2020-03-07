@@ -238,30 +238,30 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
         if (!isCompleteDailyChallenge(userId) && !isReadyToDrawDailyChallenge(userId))
             dailyChallengeRow.add(new InlineKeyboardButton()
                 .setText("Complete Daily Challenge")
-                .setCallbackData("complete_daily_challenge"));
+                .setCallbackData(Command.COMPLETE_DAILY_CHALLENGE.cmd()));
 
         List<List<InlineKeyboardButton>> inlineKeyboard = Arrays.asList(
             dailyChallengeRow,
             Arrays.asList(
                 new InlineKeyboardButton()
                 .setText("List Challenges")
-                .setCallbackData("list_challenges")
+                .setCallbackData(Command.LIST_CHALLENGES.cmd())
                 ),
             Arrays.asList(
                 new InlineKeyboardButton()
                 .setText("Add Challenge")
-                .setCallbackData("add_challenge"),
+                .setCallbackData(Command.ADD_CHALLENGE.cmd()),
                 new InlineKeyboardButton()
                 .setText("Remove Challenge")
-                .setCallbackData("remove_challenge")
+                .setCallbackData(Command.REMOVE_CHALLENGE.cmd())
                 ),
             Arrays.asList(
                 new InlineKeyboardButton()
                     .setText("Show Score")
-                    .setCallbackData("score"),
+                    .setCallbackData(Command.SCORE.cmd()),
                 new InlineKeyboardButton()
                     .setText("Reset score & daily challenge")
-                    .setCallbackData("reset")
+                    .setCallbackData(Command.RESET.cmd())
             ));
         outMsg.setReplyMarkup(
             new InlineKeyboardMarkup()
