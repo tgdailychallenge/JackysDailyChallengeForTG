@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 @Component
 public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
     private final String timeZone = "Asia/Hong_Kong";
-    private final LocalDate todayDate = Calendar.getInstance().getTime()
-        .toInstant().atZone(ZoneId.of(timeZone)).toLocalDate();
+    private LocalDate todayDate;
 
     @Autowired
     private ChallengerService challengerService;
@@ -34,6 +33,8 @@ public class JackysdailychallengeBotComponent extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        todayDate = Calendar.getInstance().getTime()
+            .toInstant().atZone(ZoneId.of(timeZone)).toLocalDate();
         if (Optional.ofNullable(update.getCallbackQuery()).isPresent() && "JackysDailyChallengeBot".equals(update.getCallbackQuery().getMessage().getFrom().getUserName()))
             onCallbackCommand(update.getCallbackQuery());
         else
